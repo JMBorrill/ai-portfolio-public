@@ -1,0 +1,185 @@
+[
+  {
+    "slug": "quant-research-studio",
+    "title": "Backtesting Platform",
+    "label": "Quant Research",
+    "tier": "flagship",
+    "summary": "Visual strategy building and reproducible quantitative research.",
+    "highlight": "Strategy graphs compile to deterministic Python, so each run can be traced to the exact code it executed.",
+    "status": "Working prototype",
+    "built": {
+      "languages": [
+        "Python",
+        "TypeScript"
+      ],
+      "frameworks": [
+        "FastAPI",
+        "NautilusTrader",
+        "React",
+        "React Flow"
+      ],
+      "tools": [
+        "pandas",
+        "NumPy",
+        "PyArrow",
+        "Pydantic",
+        "Vite",
+        "Vitest"
+      ]
+    },
+    "evidence": "../references/evidence.md#quant-research-studio",
+    "publicRepositoryUrl": "https://github.com/JMBorrill/quant-research-studio-public"
+  },
+  {
+    "slug": "satellite-intelligence-lab",
+    "title": "Satellite Intelligence Lab",
+    "label": "Satellite Data",
+    "tier": "supporting",
+    "summary": "Research into what real Sentinel-2 satellite imagery can show about change at mines, factories, ports and energy sites.",
+    "status": "Research in progress",
+    "built": {
+      "languages": [
+        "Python"
+      ],
+      "frameworks": [
+        "rasterio",
+        "pyproj",
+        "scikit-learn"
+      ],
+      "tools": [
+        "NumPy",
+        "pandas",
+        "SciPy",
+        "Pydantic",
+        "pytest"
+      ]
+    },
+    "evidence": "../references/evidence.md#satellite-intelligence-lab",
+    "publicRepositoryUrl": null
+  },
+  {
+    "slug": "ai-workflow-studio",
+    "title": "AI Workflow Studio",
+    "label": "AI Automation",
+    "tier": "flagship",
+    "summary": "Agentic workflows and automations.",
+    "highlight": "Visual workflows that combine model steps, conditions and tools, with a person approving before anything is sent.",
+    "status": "Working prototype",
+    "built": {
+      "languages": [
+        "TypeScript",
+        "Rust"
+      ],
+      "frameworks": [
+        "React",
+        "React Flow",
+        "Tauri",
+        "OpenAI Agents SDK"
+      ],
+      "tools": [
+        "Zod",
+        "SQLite",
+        "Vite",
+        "Vitest",
+        "Playwright"
+      ]
+    },
+    "evidence": "../references/evidence.md#ai-workflow-studio",
+    "publicRepositoryUrl": "https://github.com/JMBorrill/ai-workflow-studio-public"
+  },
+  {
+    "slug": "schools-football",
+    "title": "Schools League Platform",
+    "label": "Client Delivery",
+    "tier": "supporting",
+    "summary": "League administration for a schools football association: fixtures, results from a phone and league tables that update themselves.",
+    "status": "Client project",
+    "built": {
+      "languages": [
+        "TypeScript"
+      ],
+      "frameworks": [
+        "Next.js",
+        "React",
+        "Prisma",
+        "Radix UI",
+        "Tailwind CSS"
+      ],
+      "tools": [
+        "PostgreSQL",
+        "Zod",
+        "Vitest",
+        "Playwright"
+      ]
+    },
+    "evidence": "../references/evidence.md#schools-football",
+    "publicRepositoryUrl": null
+  },
+  {
+    "slug": "charity-website",
+    "title": "Charity Digital Transformation",
+    "label": "Client Delivery",
+    "tier": "supporting",
+    "summary": "An ongoing digital-transformation engagement for a charity: an accessible public website with two services under one roof, and a secure staff dashboard for recruitment, volunteering and donations. Its release awaits the charity’s approval.",
+    "status": "In progress",
+    "built": {
+      "languages": [
+        "TypeScript"
+      ],
+      "frameworks": [
+        "Next.js",
+        "React",
+        "Tailwind CSS"
+      ],
+      "tools": [
+        "SQLite",
+        "Stripe",
+        "Zod",
+        "Vitest",
+        "axe-core"
+      ]
+    },
+    "evidence": "../references/evidence.md#charity-website",
+    "publicRepositoryUrl": null
+  },
+  {
+    "slug": "criteria-chat",
+    "title": "Criteria Chat",
+    "label": "Lending Criteria AI",
+    "tier": "supporting",
+    "summary": "Conversational mortgage criteria research: ask about one lender or compare a panel, with every answer quoted from its source.",
+    "status": "Working prototype",
+    "built": {
+      "languages": [
+        "Python",
+        "TypeScript"
+      ],
+      "frameworks": [
+        "FastAPI",
+        "React"
+      ],
+      "tools": [
+        "JSON Schema",
+        "Vite",
+        "Playwright"
+      ]
+    },
+    "evidence": "../references/evidence.md#criteria-chat",
+    "publicRepositoryUrl": "https://github.com/JMBorrill/criteria-chat-public"
+  },
+  {
+    "slug": "small-model-training",
+    "title": "Small Model Training",
+    "label": "Model Training",
+    "tier": "supporting",
+    "summary": "Research into training small language models locally.",
+    "status": "Research in progress",
+    "built": {
+      "languages": [],
+      "frameworks": [],
+      "tools": []
+    },
+    "evidence": "../references/evidence.md#small-model-training",
+    "publicRepositoryUrl": null
+  }
+]

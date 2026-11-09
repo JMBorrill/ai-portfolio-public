@@ -1,0 +1,228 @@
+{
+ "sites": [
+  {
+   "id": "tesla_texas",
+   "project": "industrial",
+   "name": "Tesla Gigafactory Texas",
+   "latitude": 30.2214,
+   "longitude": -97.6208,
+   "extent_km": 2.56,
+   "wide_extent_km": 6.0,
+   "resolution_m": 20,
+   "years": [
+    {
+     "year": 2019,
+     "observed": "2019-06-09",
+     "item": "S2A_T14RPU_20190609T172207_L2A",
+     "processing_baseline": "05.00",
+     "scene_cloud_percent": 1.012273,
+     "image": "tesla_texas-2019",
+     "outline": {
+      "x": 0.2867,
+      "y": 0.2867,
+      "size": 0.4267
+     },
+     "shares": {
+      "vegetation": 0.7789,
+      "not_vegetated": 0.2015,
+      "water": 0.0021,
+      "cloud": 0.002,
+      "no_data": 0.0
+     },
+     "mean_ndvi": 0.565,
+     "clear_share": 0.9824
+    },
+    {
+     "year": 2024,
+     "observed": "2024-08-21",
+     "item": "S2A_T14RPU_20240821T172327_L2A",
+     "processing_baseline": "05.11",
+     "scene_cloud_percent": 0.044464,
+     "image": "tesla_texas-2024",
+     "outline": {
+      "x": 0.2867,
+      "y": 0.2867,
+      "size": 0.4267
+     },
+     "shares": {
+      "vegetation": 0.2892,
+      "not_vegetated": 0.7013,
+      "water": 0.0009,
+      "cloud": 0.0,
+      "no_data": 0.0
+     },
+     "mean_ndvi": 0.266,
+     "clear_share": 0.9914
+    }
+   ]
+  },
+  {
+   "id": "morenci",
+   "project": "mining",
+   "name": "Morenci mine",
+   "latitude": 33.07,
+   "longitude": -109.35,
+   "extent_km": 2.56,
+   "wide_extent_km": 6.0,
+   "resolution_m": 20,
+   "years": [
+    {
+     "year": 2019,
+     "observed": "2019-06-19",
+     "item": "S2B_T12SXB_20190619T181128_L2A",
+     "processing_baseline": "05.00",
+     "scene_cloud_percent": 0.005301,
+     "image": "morenci-2019",
+     "outline": {
+      "x": 0.2867,
+      "y": 0.2867,
+      "size": 0.4267
+     },
+     "shares": {
+      "vegetation": 0.0002,
+      "not_vegetated": 0.996,
+      "water": 0.0026,
+      "cloud": 0.0001,
+      "no_data": 0.0
+     },
+     "mean_ndvi": 0.053,
+     "clear_share": 0.9987
+    },
+    {
+     "year": 2024,
+     "observed": "2024-06-12",
+     "item": "S2B_T12SXB_20240612T180232_L2A",
+     "processing_baseline": "05.10",
+     "scene_cloud_percent": 0.000446,
+     "image": "morenci-2024",
+     "outline": {
+      "x": 0.2867,
+      "y": 0.2867,
+      "size": 0.4267
+     },
+     "shares": {
+      "vegetation": 0.0004,
+      "not_vegetated": 0.9932,
+      "water": 0.0042,
+      "cloud": 0.0,
+      "no_data": 0.0
+     },
+     "mean_ndvi": 0.055,
+     "clear_share": 0.9977
+    }
+   ]
+  },
+  {
+   "id": "la_pier400",
+   "project": "ports",
+   "name": "Los Angeles APM Pier 400",
+   "latitude": 33.7289,
+   "longitude": -118.2583,
+   "extent_km": 2.56,
+   "wide_extent_km": 6.0,
+   "resolution_m": 20,
+   "years": [
+    {
+     "year": 2019,
+     "observed": "2019-06-28",
+     "item": "S2B_T11SLT_20190628T184456_L2A",
+     "processing_baseline": "05.00",
+     "scene_cloud_percent": 4.153556,
+     "image": "la_pier400-2019",
+     "outline": {
+      "x": 0.2867,
+      "y": 0.2867,
+      "size": 0.4267
+     },
+     "shares": {
+      "vegetation": 0.0055,
+      "not_vegetated": 0.5164,
+      "water": 0.4644,
+      "cloud": 0.0007,
+      "no_data": 0.0
+     },
+     "mean_ndvi": 0.018,
+     "clear_share": 0.9862
+    },
+    {
+     "year": 2024,
+     "observed": "2024-08-25",
+     "item": "S2A_T11SLT_20240825T183628_L2A",
+     "processing_baseline": "05.11",
+     "scene_cloud_percent": 0.010972,
+     "image": "la_pier400-2024",
+     "outline": {
+      "x": 0.2867,
+      "y": 0.2867,
+      "size": 0.4267
+     },
+     "shares": {
+      "vegetation": 0.0043,
+      "not_vegetated": 0.5156,
+      "water": 0.4659,
+      "cloud": 0.0,
+      "no_data": 0.0
+     },
+     "mean_ndvi": -0.042,
+     "clear_share": 0.9857
+    }
+   ]
+  },
+  {
+   "id": "bowen",
+   "project": "energy",
+   "name": "Plant Bowen",
+   "latitude": 34.1256,
+   "longitude": -84.9222,
+   "extent_km": 2.56,
+   "wide_extent_km": 6.0,
+   "resolution_m": 20,
+   "years": [
+    {
+     "year": 2019,
+     "observed": "2019-06-14",
+     "item": "S2A_T16SFC_20190614T162530_L2A",
+     "processing_baseline": "05.00",
+     "scene_cloud_percent": 0.000604,
+     "image": "bowen-2019",
+     "outline": {
+      "x": 0.2867,
+      "y": 0.2867,
+      "size": 0.4267
+     },
+     "shares": {
+      "vegetation": 0.5341,
+      "not_vegetated": 0.3773,
+      "water": 0.0673,
+      "cloud": 0.0,
+      "no_data": 0.0
+     },
+     "mean_ndvi": 0.45,
+     "clear_share": 0.9786
+    },
+    {
+     "year": 2024,
+     "observed": "2024-08-11",
+     "item": "S2B_T16SFC_20240811T162826_L2A",
+     "processing_baseline": "05.11",
+     "scene_cloud_percent": 0.000581,
+     "image": "bowen-2024",
+     "outline": {
+      "x": 0.2867,
+      "y": 0.2867,
+      "size": 0.4267
+     },
+     "shares": {
+      "vegetation": 0.5475,
+      "not_vegetated": 0.3619,
+      "water": 0.0565,
+      "cloud": 0.0,
+      "no_data": 0.0
+     },
+     "mean_ndvi": 0.445,
+     "clear_share": 0.9658
+    }
+   ]
+  }
+ ]
+}

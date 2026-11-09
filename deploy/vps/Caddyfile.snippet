@@ -1,0 +1,42 @@
+# Portfolio (JMBorrill/ai-portfolio, deploy/vps). Replaces the blank {$DOMAIN} placeholder block.
+jmborrill.co.uk {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		# The site frames the studios; nothing frames the site.
+		Content-Security-Policy "frame-ancestors 'none'"
+		-Server
+	}
+	reverse_proxy jmborrill-site:80
+}
+
+www.jmborrill.co.uk {
+	redir https://jmborrill.co.uk{uri} permanent
+}
+
+# AI Workflow Studio demo
+studio.jmborrill.co.uk {
+	reverse_proxy jmborrill-aiws:8080
+}
+
+# Quant Research Studio demo
+research.jmborrill.co.uk {
+	reverse_proxy jmborrill-qrs:8765
+}
+
+# Client work, anonymised: the charity website demo
+client1.jmborrill.co.uk {
+	reverse_proxy jmborrill-charity:8080
+}
+
+# Client work, anonymised: the schools football demo
+client2.jmborrill.co.uk {
+	reverse_proxy jmborrill-football:8080
+}
+
+# Criteria Chat demo (fictional lenders)
+criteria.jmborrill.co.uk {
+	reverse_proxy jmborrill-criteria:8080
+}

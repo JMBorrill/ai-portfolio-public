@@ -1,0 +1,51 @@
+# The site and its demo services, each on its own host name, with certificates from Let's Encrypt.
+# Caddy sets X-Forwarded-For to the address it saw (by its documentation, ignoring a client's value
+# unless trusted_proxies is set), and the services read the last address in it
+# (AIWS_CLIENT_IP_HEADER, QRS_CLIENT_IP_HEADER).
+{
+	# Empty in production. check-stack.sh sets "local_certs": certificates from Caddy's own CA.
+	{$CADDY_OPTIONS}
+}
+
+{$SITE_HOST} {
+	root * /srv/site
+	encode
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		# The site frames the studios; nothing frames the site.
+		Content-Security-Policy "frame-ancestors 'none'"
+	}
+	file_server
+	handle_errors 404 {
+		rewrite * /404.html
+		file_server
+	}
+}
+
+{$AIWS_HOST} {
+	reverse_proxy aiws:8080
+}
+
+{$QRS_HOST} {
+	reverse_proxy qrs:8765
+}
+
+# The client demos, anonymised: the charity website and the schools football platform.
+{$CHARITY_HOST} {
+	reverse_proxy charity:8080
+}
+
+{$FOOTBALL_HOST} {
+	reverse_proxy football:8080
+}
+
+{$CRITERIA_HOST} {
+	reverse_proxy criteria:8080
+}
+
+# www. goes to the bare name (needs its own DNS record).
+www.{$SITE_HOST} {
+	redir https://{$SITE_HOST}{uri} permanent
+}

@@ -1,0 +1,28 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+out/
+dist/
+coverage/
+playwright-report/
+test-results/
+.claude/settings.local.json
+
+next-env.d.ts
+*.tsbuildinfo
+
+# Written by `next dev` (Next.js agent rules); this repository keeps its instructions in CLAUDE.md.
+AGENTS.md
+
+# Built by demos/aim/build.sh
+demos/aim/site/
+
+# Built by demos/football/build.sh
+demos/football/site/
+demos/football/.pgdata/
+
+# Built by demos/criteria/build.sh
+demos/criteria/site/

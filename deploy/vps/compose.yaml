@@ -1,0 +1,147 @@
+# The portfolio on Joshua's existing VPS, behind the Caddy that already serves its other sites
+# (criteria-caddy-1 on the criteria_default network). Unlike ../compose.yaml, this runs no Caddy of its
+# own on 80/443: the shared Caddy terminates TLS and proxies to these containers.
+#
+#   docker compose -f deploy/vps/compose.yaml up -d
+#   for n in aiws qrs charity football criteria; do docker network connect jmborrill_$n criteria-caddy-1; done
+#
+# Then add Caddyfile.snippet to the shared Caddyfile and reload. See README.md.
+name: jmborrill
+
+x-demo: &demo
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  pull_policy: never # built locally by demos/*/build.sh
+  restart: unless-stopped
+
+services:
+  site:
+    image: caddy:2.11.9
+    container_name: jmborrill-site
+    volumes:
+      - ./site.Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${SITE_DIR:-../../out}:/srv/site:ro
+    read_only: true
+    tmpfs: ["/tmp:size=16m", "/data:size=8m", "/config:size=8m"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks: [shared]
+    mem_limit: 64m
+    restart: unless-stopped
+
+  aiws:
+    <<: *demo
+    image: jmborrill-aiws-demo
+    container_name: jmborrill-aiws
+    environment:
+      AIWS_FRAME_ANCESTORS: https://jmborrill.co.uk
+      AIWS_CLIENT_IP_HEADER: x-forwarded-for
+    networks: [aiws]
+    tmpfs: ["/tmp:size=16m"]
+    mem_limit: ${AIWS_MEMORY:-512m}
+    cpus: 1
+    pids_limit: 200
+
+  qrs:
+    <<: *demo
+    image: jmborrill-qrs-demo
+    container_name: jmborrill-qrs
+    environment:
+      QRS_FRAME_ANCESTORS: https://jmborrill.co.uk
+      QRS_CLIENT_IP_HEADER: x-forwarded-for
+    networks: [qrs]
+    tmpfs: ["/tmp:size=${QRS_TMP:-256m}"]
+    # Lower than ../compose.yaml's 2g: this host has 3.8 GiB shared with other sites. Measured peak
+    # was about 1 GiB with 6 busy visitors; past the cap only this container restarts.
+    mem_limit: ${QRS_MEMORY:-1536m}
+    cpus: 2
+    pids_limit: 512
+
+  # The anonymised charity website (demos/aim): data in a fresh directory under /tmp on each start.
+  charity:
+    <<: *demo
+    image: jmborrill-aim-demo
+    container_name: jmborrill-charity
+    environment:
+      AIM_FRAME_ANCESTORS: https://jmborrill.co.uk
+      AIM_PUBLIC_URL: https://client1.jmborrill.co.uk
+    networks: [charity]
+    # /tmp holds the app's data; .next/cache its optimised images.
+    tmpfs: ["/tmp:size=64m", "/app/aim/site/.next/cache:size=64m,uid=1000,gid=1000"]
+    mem_limit: ${CHARITY_MEMORY:-256m}
+    cpus: 1
+    pids_limit: 200
+
+  # The anonymised schools football platform (demos/football), reseeded hourly from its fictional data.
+  football:
+    <<: *demo
+    image: jmborrill-football-demo
+    container_name: jmborrill-football
+    environment:
+      DATABASE_URL: postgresql://demo:demo@football-db:5432/football_demo
+      FOOTBALL_FRAME_ANCESTORS: https://jmborrill.co.uk
+      FOOTBALL_PUBLIC_URL: https://client2.jmborrill.co.uk
+    networks: [football]
+    tmpfs: ["/tmp:size=64m", "/home/node:size=16m,uid=1000,gid=1000", "/app/football/site/.next/cache:size=64m,uid=1000,gid=1000"]
+    depends_on:
+      football-db:
+        condition: service_healthy
+    mem_limit: ${FOOTBALL_MEMORY:-384m}
+    cpus: 1
+    pids_limit: 200
+
+  # Its database: fictional data only, rebuilt by the app's seed, so nothing is kept between restarts.
+  football-db:
+    image: postgres:16-alpine
+    container_name: jmborrill-football-db
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: football_demo
+    tmpfs: ["/var/lib/postgresql/data:size=256m", "/var/run/postgresql:size=8m"]
+    networks: [football]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo -d football_demo"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: ${FOOTBALL_DB_MEMORY:-192m}
+    restart: unless-stopped
+
+  # Criteria Chat (demos/criteria): fictional lenders, offline keyword reader, no model, no data kept.
+  criteria:
+    <<: *demo
+    image: jmborrill-criteria-demo
+    container_name: jmborrill-criteria
+    environment:
+      CRITERIA_FRAME_ANCESTORS: https://jmborrill.co.uk
+    networks: [criteria]
+    tmpfs: ["/tmp:size=16m"]
+    mem_limit: ${CRITERIA_MEMORY:-192m}
+    cpus: 1
+    pids_limit: 100
+
+networks:
+  shared:
+    external: true
+    name: criteria_default
+  # No route out; the shared Caddy is connected to each by `docker network connect`.
+  aiws:
+    name: jmborrill_aiws
+    internal: true
+  qrs:
+    name: jmborrill_qrs
+    internal: true
+  charity:
+    name: jmborrill_charity
+    internal: true
+  football:
+    name: jmborrill_football
+    internal: true
+  criteria:
+    name: jmborrill_criteria
+    internal: true

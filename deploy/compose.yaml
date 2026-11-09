@@ -1,0 +1,147 @@
+# The portfolio and its demo services on one host. Caddy serves the static site and terminates
+# TLS for every host name; each demo service sits on an internal network of its own, with no
+# route out, reachable only through Caddy (and not from the other service). Limits are from the measurements in
+# references/test-evidence/release-readiness.md.
+#
+#   docker compose --env-file deploy/jmborrill.env -f deploy/compose.yaml up -d
+#
+# The images are built by demos/aiws/build.sh, demos/qrs/build.sh and deploy/build-demos.sh; the site
+# by `npm run build` with each NEXT_PUBLIC_*_URL set to its https:// host. See README.md.
+name: jmborrill
+
+x-demo: &demo
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  pull_policy: never # built locally by demos/*/build.sh
+  restart: unless-stopped
+
+services:
+  caddy:
+    image: caddy:2.11.9
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      SITE_HOST: ${SITE_HOST:?}
+      AIWS_HOST: ${AIWS_HOST:?}
+      QRS_HOST: ${QRS_HOST:?}
+      CHARITY_HOST: ${CHARITY_HOST:?}
+      FOOTBALL_HOST: ${FOOTBALL_HOST:?}
+      CRITERIA_HOST: ${CRITERIA_HOST:?}
+      CADDY_OPTIONS: ${CADDY_OPTIONS:-}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${SITE_DIR:-../out}:/srv/site:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    read_only: true
+    tmpfs: ["/tmp:size=16m"]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:true"]
+    networks: [edge, aiws, qrs, charity, football, criteria]
+    restart: unless-stopped
+
+  aiws:
+    <<: *demo
+    image: jmborrill-aiws-demo
+    environment:
+      AIWS_FRAME_ANCESTORS: ${FRAME_ANCESTORS:-https://${SITE_HOST}}
+      AIWS_CLIENT_IP_HEADER: x-forwarded-for
+    networks: [aiws]
+    tmpfs: ["/tmp:size=${AIWS_TMP:-16m}"]
+    mem_limit: ${AIWS_MEMORY:-512m}
+    cpus: 1
+    pids_limit: 200
+
+  qrs:
+    <<: *demo
+    image: jmborrill-qrs-demo
+    environment:
+      QRS_FRAME_ANCESTORS: ${FRAME_ANCESTORS:-https://${SITE_HOST}}
+      QRS_CLIENT_IP_HEADER: x-forwarded-for
+    networks: [qrs]
+    tmpfs: ["/tmp:size=${QRS_TMP:-512m}"]
+    mem_limit: ${QRS_MEMORY:-2g}
+    cpus: 2
+    pids_limit: 512
+
+  # The anonymised charity website (demos/aim): its data lives under /tmp, fresh on each start.
+  charity:
+    <<: *demo
+    image: jmborrill-aim-demo
+    environment:
+      AIM_FRAME_ANCESTORS: ${FRAME_ANCESTORS:-https://${SITE_HOST}}
+      AIM_PUBLIC_URL: https://${CHARITY_HOST}
+    networks: [charity]
+    tmpfs: ["/tmp:size=64m", "/app/aim/site/.next/cache:size=64m,uid=1000,gid=1000"]
+    mem_limit: ${CHARITY_MEMORY:-384m}
+    cpus: 1
+    pids_limit: 200
+
+  # The anonymised schools football platform (demos/football), reseeded hourly from fictional data.
+  football:
+    <<: *demo
+    image: jmborrill-football-demo
+    environment:
+      DATABASE_URL: postgresql://demo:demo@football-db:5432/football_demo
+      FOOTBALL_FRAME_ANCESTORS: ${FRAME_ANCESTORS:-https://${SITE_HOST}}
+      FOOTBALL_PUBLIC_URL: https://${FOOTBALL_HOST}
+    networks: [football]
+    tmpfs: ["/tmp:size=64m", "/home/node:size=16m,uid=1000,gid=1000", "/app/football/site/.next/cache:size=64m,uid=1000,gid=1000"]
+    depends_on:
+      football-db:
+        condition: service_healthy
+    mem_limit: ${FOOTBALL_MEMORY:-512m}
+    cpus: 1
+    pids_limit: 200
+
+  # Its database: fictional data only, rebuilt by the app's seed, kept in memory.
+  football-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: football_demo
+    tmpfs: ["/var/lib/postgresql/data:size=256m", "/var/run/postgresql:size=8m"]
+    networks: [football]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo -d football_demo"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: ${FOOTBALL_DB_MEMORY:-256m}
+    restart: unless-stopped
+
+  # Criteria Chat (demos/criteria): fictional lenders, offline keyword reader, no model, no data kept.
+  criteria:
+    <<: *demo
+    image: jmborrill-criteria-demo
+    environment:
+      CRITERIA_FRAME_ANCESTORS: ${FRAME_ANCESTORS:-https://${SITE_HOST}}
+    networks: [criteria]
+    tmpfs: ["/tmp:size=16m"]
+    mem_limit: ${CRITERIA_MEMORY:-192m}
+    cpus: 1
+    pids_limit: 100
+
+networks:
+  # IPv4 only. Publishing AAAA records needs IPv6 here too (enable_ipv6), so that Caddy sees IPv6
+  # visitors' own addresses; see README.md.
+  edge: {}
+  aiws:
+    internal: true
+  qrs:
+    internal: true
+  charity:
+    internal: true
+  football:
+    internal: true
+  criteria:
+    internal: true
+
+volumes:
+  caddy_data: {}
+  caddy_config: {}

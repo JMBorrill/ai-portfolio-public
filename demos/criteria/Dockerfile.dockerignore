@@ -1,0 +1,6 @@
+# The build context is demos/: only what this image needs; the image makes its own Python environment.
+*
+!lib
+!criteria/site
+!criteria/server.mjs
+criteria/site/backend/.venv

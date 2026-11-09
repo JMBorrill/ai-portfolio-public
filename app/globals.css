@@ -1,0 +1,1604 @@
+/* Tokens ------------------------------------------------------------------ */
+
+/* Near-black blue, one raised surface, cool white type and a single restrained blue. The accent
+   fills the primary action and marks focus; accent-coloured text uses a lighter tint, because
+   #5278ff itself is under 4.5:1 on the surface. */
+:root {
+  --canvas: #0b0f17;
+  --surface: #141b29;
+  --sunken: #080b11;
+  --ink: #f2f4f8;
+  --ink-soft: #c3cad6;
+  --muted: #8a94a8;
+  --rule: rgb(242 244 248 / 0.08);
+  --rule-strong: rgb(242 244 248 / 0.16);
+  --chip: rgb(242 244 248 / 0.06);
+  --frame: #080b11;
+  --code-ink: #e4e8f0;
+  --accent: #5278ff;
+  --accent-hover: #6d8dff;
+  --accent-ink: #0b0f17;
+  --accent-text: #7d9bff;
+  --focus: #7d9bff;
+  --error: #ff8f85;
+  /* Depth: a hairline above, a long soft shadow below. */
+  --lift: 0 0 0 1px var(--rule), 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 30px 60px -30px rgb(0 0 0 / 0.8);
+
+  /* Type: four sizes for the whole site. */
+  --text-sm: 0.875rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: clamp(2rem, 1.5rem + 2vw, 3rem);
+  --text-hero: clamp(2.375rem, 1.5rem + 2.6vw, 3.75rem);
+
+  --gutter: clamp(20px, 5vw, 48px);
+  --max: 1200px;
+  --radius: 12px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --fast: 150ms;
+
+  --sans: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--font-display), Georgia, "Times New Roman", serif;
+  --mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  color-scheme: dark;
+}
+
+/* Base -------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* The page carries the hero's texture, far fainter: a fixed dot grid behind everything, drifting
+   as the hero's does (one cell per loop, so it never jumps), still for reduced motion. */
+body {
+  margin: 0;
+  background-color: var(--canvas);
+  isolation: isolate;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+}
+
+body::before {
+  --dot: 22px;
+  content: "";
+  position: fixed;
+  inset: calc(-1 * var(--dot));
+  z-index: -1;
+  background-image: radial-gradient(circle, rgb(242 244 248 / 0.055) 1px, transparent 1.6px);
+  background-size: var(--dot) var(--dot);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body::before {
+    animation: hero-dots 9s linear infinite;
+  }
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+h1,
+h2 {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: var(--text-xl);
+}
+
+h3 {
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+p,
+ul,
+ol,
+dl,
+figure {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--rule-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color var(--fast);
+}
+
+a:hover {
+  text-decoration-color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+main:focus {
+  outline: none;
+}
+
+[id] {
+  scroll-margin-top: 80px; /* clear of the sticky header */
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.container {
+  width: min(100% - 2 * var(--gutter), var(--max));
+  margin-inline: auto;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  padding: 10px 16px;
+  background: var(--ink);
+  color: var(--canvas);
+  border-radius: 8px;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* Shared pieces ----------------------------------------------------------- */
+
+.eyebrow {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.lede {
+  max-width: 40rem;
+  color: var(--ink-soft);
+  font-size: var(--text-lg);
+  line-height: 1.5;
+}
+
+/* The stack reads as one quiet line of metadata, not a row of pills. */
+.stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.9em;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: var(--text-sm);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--fast),
+    transform var(--fast) var(--ease);
+}
+
+.button:hover {
+  background: var(--accent-hover);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.button--quiet {
+  background: transparent;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--rule-strong);
+}
+
+.button--quiet:hover {
+  background: var(--chip);
+}
+
+/* A text link with an arrow: the secondary action beside a button. */
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.arrow {
+  display: inline-block;
+  transition: transform var(--fast) var(--ease);
+}
+
+.button:hover .arrow,
+.text-link:hover .arrow {
+  transform: translateX(3px);
+}
+
+.text-link:hover {
+  color: var(--accent-text);
+}
+
+.app-frame {
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--frame);
+  box-shadow: var(--lift);
+}
+
+.app-frame img {
+  width: 100%;
+}
+
+.figure figcaption,
+.code figcaption,
+.layers figcaption {
+  margin-top: 12px;
+  max-width: 44rem;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+/* Header ------------------------------------------------------------------ */
+
+/* The same surface as the hero below it, with no line between them, so the two join. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: rgb(20 27 41 / 0.9);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header {
+    background: var(--surface);
+  }
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  min-height: 60px;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.site-nav {
+  display: flex;
+  gap: 4px;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+}
+
+.site-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: color var(--fast), background-color var(--fast);
+}
+
+.site-nav a:hover {
+  background: var(--chip);
+  color: var(--ink);
+}
+
+/* The one way to reach me, outlined so it stands apart from the plain link beside it. */
+.site-nav .site-nav__contact {
+  margin-left: 4px;
+  box-shadow: inset 0 0 0 1px var(--rule-strong);
+  color: var(--ink);
+}
+
+/* Contact ----------------------------------------------------------------- */
+
+/* The page ends with one line about me and the ways to reach me, nothing else. */
+.site-footer {
+  margin-top: clamp(96px, 12vw, 160px);
+  padding-block: clamp(48px, 7vw, 88px);
+  border-top: 1px solid var(--rule);
+}
+
+.site-footer__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: end;
+  gap: 32px 64px;
+}
+
+.site-footer__copy {
+  display: grid;
+  gap: 16px;
+}
+
+.site-footer__copy p {
+  max-width: 34rem;
+  color: var(--ink-soft);
+  font-size: var(--text-lg);
+  line-height: 1.5;
+}
+
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 28px;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 760px) {
+  .site-footer__inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+/* Homepage ---------------------------------------------------------------- */
+
+/* The hero is a raised panel joined to the header, full width, whose lower edge is a shallow
+   curve: one opening piece, set apart from the work below. */
+.hero {
+  --curve: clamp(28px, 5vw, 72px);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--surface);
+  border-radius: 0 0 50% 50% / 0 0 var(--curve) var(--curve);
+  box-shadow: 0 40px 80px -56px rgb(0 0 0 / 0.9);
+}
+
+/* Texture (components/HeroFx.tsx): a fine dot grid, strongest behind the product and fading before
+   the headline, drifting slowly; a glow drifting beneath the capture; with a mouse, the dots under
+   the pointer brighten. Transforms only, so the motion stays off the main thread. */
+.hero-fx {
+  --dot: 22px;
+  --mx: -999px;
+  --my: -999px;
+  --focus-at: 78% 40%;
+  --focus-size: 70% 90%;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-fx__dots,
+.hero-fx__spot {
+  position: absolute;
+  inset: calc(-1 * var(--dot));
+  background-image: radial-gradient(circle, rgb(242 244 248 / 0.16) 1px, transparent 1.6px);
+  background-size: var(--dot) var(--dot);
+}
+
+.hero-fx__dots {
+  -webkit-mask-image: radial-gradient(var(--focus-size) at var(--focus-at), #000 0%, rgb(0 0 0 / 0.5) 45%, transparent 85%);
+  mask-image: radial-gradient(var(--focus-size) at var(--focus-at), #000 0%, rgb(0 0 0 / 0.5) 45%, transparent 85%);
+}
+
+/* The same grid, brighter, shown only in a circle around the pointer. */
+.hero-fx__spot {
+  background-image: radial-gradient(circle, rgb(157 177 255 / 0.75) 1.2px, transparent 1.8px);
+  opacity: 0;
+  transition: opacity 400ms var(--ease);
+  -webkit-mask-image: radial-gradient(200px circle at calc(var(--mx) + var(--dot)) calc(var(--my) + var(--dot)), #000, transparent 70%);
+  mask-image: radial-gradient(200px circle at calc(var(--mx) + var(--dot)) calc(var(--my) + var(--dot)), #000, transparent 70%);
+}
+
+.hero-fx[data-pointer] .hero-fx__spot {
+  opacity: 1;
+}
+
+.hero-fx__glow {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  width: 50%;
+  height: 90%;
+  background: radial-gradient(closest-side, rgb(82 120 255 / 0.2), transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* One grid cell per loop, so the drift repeats without a seam. */
+  .hero-fx__dots,
+  .hero-fx__spot {
+    animation: hero-dots 9s linear infinite;
+  }
+
+  .hero-fx__glow {
+    animation: hero-glow 14s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes hero-dots {
+  to {
+    transform: translate(var(--dot), var(--dot));
+  }
+}
+
+@keyframes hero-glow {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-12%, 8%) scale(1.15);
+  }
+  100% {
+    transform: translate(8%, -6%) scale(0.95);
+  }
+}
+
+/* Stacked, the capture is at the bottom: the texture gathers there instead. */
+@media (max-width: 999.98px) {
+  .hero-fx {
+    --focus-at: 50% 85%;
+    --focus-size: 90% 45%;
+  }
+
+  .hero-fx__glow {
+    top: 50%;
+    left: 10%;
+    width: 80%;
+    height: 50%;
+  }
+}
+
+/* The headline across the page; below it, the account and actions beside the product itself. */
+.hero__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+  /* Extra room below for the curve, so it never crosses the capture. */
+  padding-block: clamp(40px, 6vw, 80px) calc(clamp(40px, 6vw, 80px) + var(--curve));
+}
+
+.hero__title {
+  max-width: 25ch;
+  font-size: var(--text-hero);
+  line-height: 1.04;
+}
+
+.hero__copy {
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: 28px;
+  min-width: 0;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 28px;
+}
+
+/* The flagship's real interface, opening its demo. */
+.hero__shot {
+  display: block;
+  min-width: 0;
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+
+.hero__shot .app-frame {
+  transition: transform 400ms var(--ease);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero__shot:hover .app-frame {
+    transform: translateY(-4px);
+  }
+}
+
+@media (min-width: 760px) {
+  .hero__inner {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    grid-template-areas:
+      "title title"
+      "copy shot";
+    gap: clamp(32px, 4vw, 48px) clamp(32px, 4vw, 56px);
+  }
+
+  .hero__title {
+    grid-area: title;
+  }
+
+  .hero__copy {
+    grid-area: copy;
+    padding-top: 4px;
+  }
+
+  .hero__shot {
+    grid-area: shot;
+  }
+}
+
+/* Wide: the headline and its account fill the left column; the product sits on the right. */
+@media (min-width: 1000px) {
+  .hero__inner {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "title shot"
+      "copy shot";
+    align-items: center;
+    row-gap: 28px;
+  }
+
+  .hero__title {
+    align-self: end;
+    max-width: none;
+    font-size: clamp(2.5rem, 1.2rem + 2.4vw, 3.75rem);
+  }
+
+  .hero__copy {
+    align-self: start;
+    padding-top: 0;
+  }
+
+  .hero__shot {
+    align-self: center;
+  }
+}
+
+/* Each letter fades in as it is reached; the caret sits against the last one, out of the line breaking. */
+.typed__char {
+  position: relative;
+  opacity: 0;
+  transition: opacity 140ms var(--ease);
+}
+
+.typed__char[data-on] {
+  opacity: 1;
+}
+
+.typed__caret {
+  position: absolute;
+  left: calc(100% + 0.03em);
+  top: 0.12em;
+  width: 0.05em;
+  height: 0.88em;
+  background: var(--accent);
+}
+
+.typed[data-done] .typed__caret {
+  animation: typed-blink 1s steps(1) 3 forwards;
+}
+
+@keyframes typed-blink {
+  50%,
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typed__caret {
+    display: none;
+  }
+
+  .typed__char {
+    transition: none;
+  }
+}
+
+.section {
+  padding-top: clamp(64px, 8vw, 104px);
+  scroll-margin-top: 61px;
+}
+
+/* Project tabs: plain names with an underline under the chosen one. */
+.project-tabs-wrap {
+  position: relative;
+  margin-bottom: clamp(36px, 5vw, 56px);
+  border-bottom: 1px solid var(--rule);
+}
+
+.project-tabs {
+  display: flex;
+  justify-content: space-between;
+  gap: clamp(20px, 3vw, 36px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.project-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Where the row scrolls and names are still hidden, its edge fades: "more this way". */
+.project-tabs-wrap[data-overflow]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 1px;
+  width: 56px;
+  background: linear-gradient(to right, transparent, var(--canvas) 80%);
+  pointer-events: none;
+}
+
+.project-tab {
+  position: relative; /* holds its visually hidden text, inside the scrolling row */
+  flex: none;
+  min-height: 52px;
+  margin-bottom: -1px;
+  padding: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--text-base);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--fast),
+    border-color var(--fast);
+}
+
+.project-tab:hover {
+  color: var(--ink);
+}
+
+.project-tab[aria-selected="true"] {
+  border-bottom-color: var(--accent);
+  color: var(--ink);
+}
+
+.project-tab:focus-visible {
+  outline-offset: -2px;
+}
+
+.project-panel:not([data-active]) {
+  display: none;
+}
+
+.project-panel:focus-visible {
+  border-radius: var(--radius);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .project-panel[data-active] {
+    animation: project-panel-in 220ms var(--ease);
+  }
+}
+
+@keyframes project-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* A project: its interface large, its account beside it. No box around either. */
+.flagship {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+}
+
+/* The open button's click area covers the capture and the text; the case study link stays above it. */
+.flagship .button:not(.button--quiet)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+}
+
+.flagship .text-link {
+  position: relative;
+  z-index: 1;
+}
+
+.flagship__media {
+  transition: transform 400ms var(--ease);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .flagship:not(.flagship--plain):hover .flagship__media {
+    transform: translateY(-4px);
+  }
+}
+
+.flagship__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  justify-items: start;
+  gap: 18px;
+}
+
+.flagship__title {
+  font-family: var(--display);
+  font-size: var(--text-xl);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.flagship__summary {
+  color: var(--ink);
+  font-size: var(--text-lg);
+  line-height: 1.45;
+}
+
+.flagship__body > p:not([class]) {
+  color: var(--ink-soft);
+}
+
+.flagship__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 28px;
+  margin-top: 6px;
+}
+
+/* The capture, with what the project is built with beneath it. */
+.flagship__visual {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+
+.built {
+  display: grid;
+  gap: 10px;
+  font-size: var(--text-sm);
+}
+
+.built div {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 16px;
+}
+
+.built dt {
+  color: var(--muted);
+}
+
+.built dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 1.1em;
+  margin: 0;
+  color: var(--ink-soft);
+  font-family: var(--mono);
+}
+
+/* On one column, the list follows the project's text rather than coming between capture and title. */
+@media (max-width: 959.98px) {
+  .flagship__visual {
+    display: contents;
+  }
+
+  .flagship .built {
+    order: 1;
+  }
+}
+
+@media (min-width: 960px) {
+  .flagship:not(.flagship--plain) {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    align-items: start;
+  }
+}
+
+/* A project without a demo: a measured column of text. */
+.flagship--plain .flagship__body {
+  max-width: 40rem;
+}
+
+/* The number of projects a tab holds, beside its name. */
+.project-tab__count {
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  vertical-align: 0.1em;
+}
+
+.project-tab[aria-selected="true"] .project-tab__count {
+  background: rgb(82 120 255 / 0.18);
+  color: var(--accent-text);
+}
+
+/* The second row, inside a tab: smaller names, side by side from the left. */
+.project-tabs-wrap--nested {
+  margin-top: calc(-1 * clamp(12px, 2vw, 24px));
+}
+
+.project-tabs-wrap--nested .project-tabs {
+  justify-content: flex-start;
+  gap: 28px;
+}
+
+.project-tabs-wrap--nested .project-tab {
+  min-height: 44px;
+  font-size: var(--text-sm);
+}
+
+.project-tabs-wrap--nested[data-overflow]::after {
+  display: none;
+}
+
+/* Case studies ------------------------------------------------------------ */
+
+.case-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  padding-block: clamp(40px, 8vw, 96px) clamp(32px, 5vw, 56px);
+}
+
+.case-header h1 {
+  font-size: clamp(2.5rem, 1.6rem + 4.5vw, 5rem);
+  line-height: 1.02;
+}
+
+.facts {
+  display: grid;
+  gap: 16px 40px;
+  margin-top: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+}
+
+.facts dt {
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.facts dd {
+  margin: 0;
+}
+
+@media (min-width: 760px) {
+  .facts {
+    grid-template-columns: auto auto auto;
+    justify-content: start;
+  }
+}
+
+.case-hero {
+  margin-bottom: clamp(16px, 4vw, 40px);
+}
+
+.case-body.container {
+  width: min(100% - 2 * var(--gutter), 46rem);
+}
+
+.case-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  padding-top: clamp(40px, 7vw, 72px);
+}
+
+.case-section h2 {
+  font-size: clamp(1.875rem, 1.5rem + 1.4vw, 2.5rem);
+}
+
+.case-section h3 {
+  margin-top: 12px;
+}
+
+.case-section > p,
+.case-section li {
+  color: var(--ink-soft);
+}
+
+.case-section strong {
+  color: var(--ink);
+}
+
+.case-section > ul {
+  display: grid;
+  gap: 8px;
+  padding-left: 1.25em;
+}
+
+.figure--inset {
+  margin-block: 8px;
+}
+
+.figure--narrow .app-frame {
+  max-width: 480px;
+}
+
+.case-section .figure:not(.figure--inset) {
+  /* Wide figures break out of the reading column, up to the page width. */
+  width: min(100vw - 2 * var(--gutter), var(--max));
+  margin-inline: calc(50% - min(100vw - 2 * var(--gutter), var(--max)) / 2);
+}
+
+.steps {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  list-style: none;
+  margin-left: 12px;
+  counter-reset: step;
+  border-left: 1px solid var(--rule);
+}
+
+.steps li {
+  position: relative;
+  padding: 10px 0 10px 40px;
+  counter-increment: step;
+}
+
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  top: 12px;
+  left: -12px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--canvas);
+  border: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.steps strong {
+  display: block;
+  font-weight: 600;
+}
+
+.code pre {
+  margin: 0;
+  padding: 20px;
+  overflow-x: auto;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: var(--frame);
+  color: var(--code-ink);
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  tab-size: 2;
+}
+
+.layers ol {
+  display: grid;
+  gap: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.layers ol > li {
+  position: relative;
+  display: grid;
+  gap: 8px;
+}
+
+.layers ol > li + li::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: 24px;
+  width: 1px;
+  height: 20px;
+  background: var(--muted);
+}
+
+.layers__name {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.layers ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.layers ul li {
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.9375rem;
+}
+
+.next-project {
+  margin-top: clamp(56px, 9vw, 112px);
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+}
+
+.next-project a {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  text-decoration: none;
+}
+
+.next-project__title {
+  font-size: clamp(2rem, 1.5rem + 2vw, 3rem);
+  font-weight: 480;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.next-project a:hover .next-project__title {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+
+.next-project__summary {
+  color: var(--muted);
+}
+
+.not-found {
+  display: grid;
+  gap: 16px;
+  padding-block: 96px;
+}
+
+/* Living Project: card → preview → workspace ---------------------------- */
+
+/* The frame's geometry is set by script from a spring; --p is its progress (0 card, 1 preview,
+   2 workspace) and each layer derives its opacity from it. */
+
+.living {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+
+.living[hidden] {
+  display: none;
+}
+
+.living__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(10 18 32 / 0.72);
+}
+
+.living__frame {
+  --p: 1;
+  position: absolute;
+  overflow: hidden;
+  border-radius: calc(14px * clamp(0, 2 - var(--p), 1));
+  background: var(--surface);
+  box-shadow: 0 32px 80px -24px rgb(0 0 0 / 0.8), 0 0 0 1px var(--rule);
+}
+
+.living__bar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 60px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+  opacity: clamp(0, (var(--p) - 0.5) * 2, 1);
+}
+
+.living__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 1.25rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.living__title:focus {
+  outline: none;
+}
+
+.living__title:focus-visible {
+  outline: 2px solid var(--focus);
+}
+
+.living__view {
+  margin-left: 6px;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.8125rem;
+}
+
+.living__control {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.living__control:hover {
+  background: var(--chip);
+}
+
+.living__confirm {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+}
+
+.living__control--primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.living__control--primary:hover {
+  background: var(--accent-hover);
+}
+
+@media (max-width: 479px) {
+  .living__wide,
+  .living__bar--confirming .living__title {
+    display: none;
+  }
+}
+
+.living__layer {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding-top: calc(60px * clamp(0, var(--p), 1));
+}
+
+.living__layer--preview {
+  opacity: clamp(0, (1.6 - var(--p)) / 0.6, 1);
+}
+
+.living__layer--workspace {
+  opacity: clamp(0, (var(--p) - 1.4) / 0.6, 1);
+  background: var(--canvas);
+}
+
+.living__explore {
+  padding: 8px clamp(16px, 4vw, 32px) 32px;
+}
+
+.living__mode {
+  padding: 10px var(--gutter);
+  background: var(--sunken);
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.875rem;
+}
+
+.living-preview__shot {
+  background: var(--frame);
+}
+
+.living-preview__shot img {
+  width: 100%;
+}
+
+.living-preview__body {
+  display: grid;
+  gap: 16px;
+  max-width: 46rem;
+  padding: 24px clamp(16px, 4vw, 32px) 8px;
+  opacity: clamp(0, (var(--p) - 0.6) / 0.4, 1);
+}
+
+.living-preview__lede {
+  font-size: 1.125rem;
+}
+
+.living-preview__notice {
+  padding: 12px 16px;
+  border-left: 3px solid var(--ink);
+  background: var(--chip);
+}
+
+/* Shown only where the framed application works in part: the backtesting platform's editing needs
+   760 pixels (components/qrs/QrsLivingProject.tsx). */
+.living__narrow {
+  display: none;
+}
+
+@media (max-width: 759.98px) {
+  .living__narrow {
+    display: revert;
+  }
+}
+
+.living-preview__features {
+  display: grid;
+  gap: 8px;
+  padding-left: 1.1em;
+  color: var(--ink-soft);
+}
+
+.living-preview__caption {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.explore-callout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  margin-top: 8px;
+  padding: 20px 24px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.explore-callout p {
+  max-width: 40rem;
+  color: var(--ink-soft);
+}
+
+/* AI Workflow Studio, embedded --------------------------------------------- */
+
+/* The workspace holds the real application in a frame; portfolio text stays outside it. */
+.living__layer--workspace {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.living__mode {
+  flex: none;
+}
+
+.studio {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: var(--frame);
+}
+
+.studio__frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.studio__state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 16px;
+  padding: 24px max(var(--gutter), calc((100% - 36rem) / 2));
+  background: var(--canvas);
+  overflow: auto;
+}
+
+.studio__state p {
+  max-width: 36rem;
+  color: var(--ink-soft);
+}
+
+.studio__state .studio__error {
+  color: var(--error);
+  font-weight: 500;
+}
+
+.studio__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Satellite Intelligence Lab workspace: a viewer, not a framed application, so it scrolls itself. */
+.sat {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.sat__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px var(--gutter) 48px;
+}
+
+.sat__intro,
+.sat__question,
+.sat__summary,
+.sat__notes {
+  max-width: 48rem;
+  color: var(--ink-soft);
+}
+
+.sat__intro {
+  margin: 0;
+}
+
+.sat__contents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.sat__contents a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 10px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.sat__contents a:hover {
+  background: var(--chip);
+}
+
+.sat__investigation {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+  scroll-margin-top: 16px;
+}
+
+.sat__title {
+  margin: 0;
+}
+
+.sat__question {
+  margin: 8px 0 0;
+  font-size: 1.125rem;
+}
+
+.sat__brief {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 8px 40px;
+  margin-top: 20px;
+  color: var(--ink-soft);
+}
+
+.sat__brief h4,
+.sat__brief dt {
+  margin: 12px 0 4px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.sat__brief ol {
+  margin: 0;
+  padding-left: 1.3em;
+}
+
+.sat__brief li + li {
+  margin-top: 6px;
+}
+
+.sat__brief dl,
+.sat__brief dd {
+  margin: 0;
+}
+
+.sat__site {
+  margin: 28px 0 4px;
+}
+
+.sat__where {
+  margin: 0;
+  color: var(--muted);
+}
+
+.sat__pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 16px;
+  margin: 20px 0 0;
+}
+
+.sat__figure {
+  margin: 0;
+}
+
+.sat__image {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.sat__image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+/* The lab's 2.56 km square. Dark and light rings, so it shows on any ground. */
+.sat__outline {
+  position: absolute;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}
+
+.sat__figure figcaption {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.sat__summary {
+  margin: 20px 0 0;
+}
+
+.sat__table {
+  width: 100%;
+  margin: 28px 0 0;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.sat__table caption {
+  padding-bottom: 8px;
+  color: var(--muted);
+  text-align: left;
+}
+
+.sat__table th,
+.sat__table td {
+  padding: 10px 12px 10px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: right;
+  vertical-align: top;
+}
+
+.sat__table th:first-child {
+  text-align: left;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.sat__table thead th {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.sat__notes {
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+}
+
+.sat__notes h3 {
+  margin: 24px 0 8px;
+  color: var(--ink);
+}
+
+.sat__notes h3:first-child {
+  margin-top: 0;
+}
+
+.sat__notes ul {
+  padding-left: 1.2em;
+}
+
+.sat__notes li + li {
+  margin-top: 8px;
+}
+
+.sat__credit {
+  margin-top: 24px;
+  color: var(--muted);
+  font-size: 0.875rem;
+}

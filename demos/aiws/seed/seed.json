@@ -1,0 +1,23 @@
+{
+  "commit": "5af2c8254454229aa29b3d791e0ad2a6db77938c",
+  "source": "examples/lead-qualification/workflow.json",
+  "sourceSha256": "3144b2a8fc62ac6b9842d2cdd284c216eacb28609810d8e29f5dad776560507d",
+  "corrections": [
+    {
+      "find": "/\\bJames\\b/g",
+      "replace": "Joshua",
+      "reason": "The example names the sender \"James\"; the portfolio is Joshua Borrill's.",
+      "at": {
+        "/nodes/4/config/instructions": 2,
+        "/fixtures/input/message": 1,
+        "/fixtures/agents/draft/output/body": 1
+      }
+    }
+  ],
+  "correctedSha256": "b3a584fda85194942ba0f24703d59d98ce6b23dc51bad0fc5150490c8f33b219",
+  "workflowId": "wf_jmb_lead_qualification",
+  "workflowName": "JMB lead qualification",
+  "route": "#/workflows/wf_jmb_lead_qualification/test",
+  "sha256": "88e9bce44c44910816a3731778c4744d74f8036b3db4b24819e1ff37cc195517",
+  "madeBy": "demos/aiws/make-seed.mjs"
+}

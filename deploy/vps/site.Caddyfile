@@ -1,0 +1,15 @@
+# Serves the static export inside the jmborrill-site container. TLS and headers are the shared Caddy's job.
+{
+	admin off
+	auto_https off
+}
+
+:80 {
+	root * /srv/site
+	encode
+	file_server
+	handle_errors 404 {
+		rewrite * /404.html
+		file_server
+	}
+}
